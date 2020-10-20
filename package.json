@@ -1,0 +1,22 @@
+{
+	"name": "load-chat-modules",
+	"version": "1.0.0",
+	"description": "use the socket for chat module for load app",
+	"main": "index.js",
+	"scripts": {
+		"dev": "nodemon index.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Vikas Ukani",
+	"license": "ISC",
+	"dependencies": {
+		"body-parser": "^1.19.0",
+		"dotenv": "^8.2.0",
+		"express": "^4.17.1",
+		"moment": "^2.24.0",
+		"mysql": "^2.17.1",
+		"nodemon": "^1.19.1",
+		"socket.io": "^2.2.0",
+		"underscore": "^1.9.1"
+	}
+}

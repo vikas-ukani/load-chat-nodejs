@@ -1,0 +1,426 @@
+<!-- 
+    Real Time chatting app
+    @author Vikas Ukani 
+-->
+
+<!-- Defining angular app -->
+<html ng-app="main">
+
+    <head>
+        <title>Real-time Private Chat using Angular, Nodejs and Mysql.</title>
+        <meta charset="utf-8">
+        <base href="/">
+        <!-- Adding CSS files-->
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.0/css/font-awesome.css" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+        <!-- <link rel="stylesheet" href="../css/style.css"> -->
+    </head>
+
+    <!-- Defining angular controller -->
+
+    <body>
+        <div ng-controller="AppController" id="main">
+            <!-- Angular router will inject the content here -->
+            <div ng-view></div>
+        </div>
+    </body>
+
+    <!-- Adding JS files -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.5/angular.min.js"></script>
+    <script src="https://code.angularjs.org/1.6.5/angular-route.min.js"></script>
+    <!-- <script src="js/ui-bootstrap-2.5.0.min.js"></script> -->
+    <script src="//angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+    <!-- <script src="js/app.service.js"></script> -->
+    <!-- <script src="js/auth.controller.js"></script>
+    <script src="js/home.controller.js"></script> -->
+
+</html>
+
+<script>
+    var app = angular.module('main', []);
+
+    app.factory('appService', ($http) => {
+        return new AppService($http)
+    });
+
+    app.controller('AppController', function ($scope, appService) {
+        // app.controller('AppController',    function ($scope, AppService ) {
+
+        var senderId = 1;
+        var receiverId = 1;
+        var conversationId = 10;
+        var trainingLogId = 32;
+        var eventDetailId = 44;
+        var clientBookingId = 10;
+
+        // done
+        appService.connectSocketServer(senderId);
+
+        var request = {
+            'booked_client_id': 1
+        }
+        // appService.sendClientBookingRequest(request);
+        appService.getMessageDetailsById();
+
+        var updateRequest = {
+            status: 'ACCEPTED',
+            id: 1
+        };
+        // appService.updateClientBookingStatus(updateRequest);
+        // appService.receiveUpdateStatus();
+
+        // appService.getClientBookingDetails(clientBookingId);
+
+        // appService.disconnectSocketServer(senderId);
+
+        /** get training details and event details */
+        // appService.getTrainingDetails(trainingLogId);
+        // appService.getEventDetails(eventDetailId);
+
+        // appService.getChatListById(conversationId, { id: 0, limit: 10 });
+
+        // done
+        /*  var input = prompt("Enter Message");
+         appService.addMessage({
+             conversation_id: conversationId,
+             message: input,
+             from_id: senderId,
+             to_id: receiverId,
+         }); */
+
+        /** send a log data */
+        // appService.addLog(
+        //     {
+        //         from_id: senderId,
+        //         to_ids: [receiverId],
+        //         training_log_id: receiverId
+        //     }
+        // );
+
+        /** get chat messages listing using id and pagination id means conversation in and input is pagination input */
+
+        /** send a log data */
+        // var input = prompt("Enter Message");
+        // appService.addEvent(
+        //     {
+        //         from_id: senderId,
+        //         to_ids: [receiverId],
+        //         event_id: Math.floor(Math.random() * 10)
+        //     }
+        // );
+
+        // return false;
+
+        /** send an message */
+        // var input = prompt("Enter Message");
+        // /** SEND Multiple message */
+        // appService.addMultipleMessage(
+        //     {
+        //         message: input,
+        //         from_id: senderId,
+        //         to_ids: [receiverId]
+        //     }
+        // );
+
+        /** get conversation listing by id => user id */
+        // appService.getConversationListById(conversationId);
+
+        /** get chat messages listing using id and pagination id means conversation in and input is pagination input */
+        // appService.getChatListById(conversationId, { id: 43, limit: 10 });
+
+        /** get active users */
+        // done
+        // appService.getAllActiveUsers(1)
+        // done
+        // appService.readAllMessages(1, 1)
+        // done
+
+        return false;
+    });
+
+    /** set app services */
+    class AppService {
+        constructor($http) {
+            this.$http = $http;
+            this.socket = null;
+            this.socketID = null;
+        }
+        /** first connect to the socket server */
+        /** done */
+        connectSocketServer(userId) {
+            const socket = io.connect({ query: `id=${userId}` });
+
+
+            this.socket = socket;
+            this.socketID = socket.id;
+
+            this.data = {
+                chatlist: [],
+                username: '',
+                selectedFriendId: null,
+                selectedFriendName: null,
+                messages: []
+            };
+            this.socket.on(`check-status`, (response) => {
+                // console.log(response);
+            });
+
+            this.socket.on(`updated-status-response-to-receiver`, (response) => {
+                console.log("Updated status response ", response);
+            });
+
+            this.socket.on(`add-message-response`, (response) => {
+                console.log("add-message-response", response);
+            });
+
+            this.socket.emit(`is-user-online`, 1);
+            this.socket.emit(`disconnect`);
+            console.log("Ids is => ", socket);
+        }
+
+        /** to read all message using id */
+        readAllMessages(id, uid) {
+            this.socket.emit(`read-message`, id, uid);
+            console.log("Messages Has beed read");
+        }
+
+        getTrainingDetails(id) {
+            this.socket.emit(`get-training-details`, 1, function (data) {
+                console.info(data);
+            });
+        }
+
+        getEventDetails(id) {
+            this.socket.emit(`get-event-details`, id, function (data) {
+                console.log(data);
+            });
+        }
+
+        /**  get client details by id */
+        getClientBookingDetails(id) {
+            this.socket.emit(`get-client-Book-details`, id, function (data) {
+                console.log("get-client-Book-details", data);
+            });
+        }
+
+        /**  get client details by id */
+        receiveUpdateStatus() {
+            this.socket.emit(`receive-updated-status`, {
+                booked_client_id: 26,
+                user_id: 3
+            });
+            this.socketOn('updated-status-response-to-receiver', (response) => {
+                console.log("receive-updated-status  => ", response);
+            });
+        }
+
+        /** send a message */
+        addMessage(messageData) {
+            this.socket.emit(`add-message`, messageData);
+
+            this.socketOn('add-message-response', (response) => {
+                console.log("RESPONSE => ", response);
+            });
+        }
+
+        /** send a message */
+        getMessageDetailsById() {
+            let messageData = {
+                message_id: 147,
+                user_id: 3
+            }
+            this.socket.emit(`send-message-to-receiver`, messageData);
+            this.socketOn('add-message-response', (response) => {
+                console.log("RESPONSE => ", response);
+            });
+        }
+
+        /**  send client booking request to message */
+        sendClientBookingRequest(request) {
+            this.socket.emit(`add-client-request-message`, request, function (data) {
+                console.log(data);
+            });
+        }
+
+        /**  send client booking request to message */
+        updateClientBookingStatus(request) {
+            this.socket.emit(`update-client-booking-status`, request, function (data) {
+                console.log("update-client-booking-status Updated Data  ", data);
+            });
+        }
+
+        /** send a log */
+        addLog(logData) {
+            this.socket.emit(`add-log`, logData);
+            this.socketOn('add-message-response', (response) => {
+                console.log("LOG RESPONSE => ", response);
+            });
+        };
+
+        /** send a event */
+        addEvent(eventData) {
+            this.socket.emit(`add-event`, eventData);
+            this.socketOn('add-message-response', (response) => {
+                console.log("Event RESPONSE => ", response);
+            });
+        };
+
+        /** send a message */
+        addMultipleMessage(messageData) {
+            this.socket.emit(`multiple-send-message`, messageData);
+
+            this.socketOn('add-message-response', (response) => {
+                console.log("RESPONSE => ", response);
+            });
+        }
+
+        /** to disconnect socket server  */
+        /** done */
+        disconnectSocketServer(userId) {
+            // console.log("Check user id to logout socket server =>  "+ userId);
+            //  return false; 
+            this.socket.emit("disconnect");
+        }
+
+        /** get chat conversation list by id  */
+        getConversationListById(id) {
+            this.socket.emit(`conversation-list`, id);
+            this.socketOn('conversation-list-response', (response) => {
+                console.log("Response ", response);
+            })
+        }
+        /** get chat chat list by id  */
+        getChatListById(id, input) {
+            this.socket.emit(`chat-list`, id, input);
+            this.socketOn('chat-list-response', (response) => {
+                console.log("Response ", response);
+            })
+        }
+
+        getAllActiveUsers(id) {
+            this.httpCall({
+                // url: '/userSessionCheck',
+                url: '/userSessionCheck',
+                params: {
+                    'id': id
+                }
+            })
+                .then((response) => {
+                    this.data.username = response.username;
+                    this.socketEmit(`chat-list`, id);
+                    this.socketOn('chat-list-response', (response) => {
+                        console.log("Response", response);
+                        return false;
+
+                        // $scope.$apply(() => {
+                        //     if (!response.error) {
+                        //          if (response.singleUser) {
+                        //             /* 
+                        //             * Removing duplicate user from chat list array
+                        //             */
+                        //             if (this.data.chatlist.length > 0) {
+                        //                 this.data.chatlist = this.data.chatlist.filter(function (obj) {
+                        //                     return obj.id !== response.chatList.id;
+                        //                 });
+                        //             }
+                        //             /* 
+                        //             * Adding new online user into chat list array
+                        //             */
+                        //             $scope.data.chatlist.push(response.chatList);
+                        //         } else if (response.userDisconnected) {
+                        //             /* 
+                        //             * Removing a user from chat list, if user goes offline
+                        //             */
+                        //             $scope.data.chatlist = $scope.data.chatlist.filter(function (obj) {
+                        //                 return obj.socketid !== response.socketId;
+                        //             });
+                        //         } else {
+                        //             /* 
+                        //             * Updating entire chatlist if user logs in
+                        //             */
+                        //             $scope.data.chatlist = response.chatList;
+                        //         }
+                        //     } else {
+                        //         alert(`Faild to load Chat list`);
+                        //     }
+                        // });
+                    });
+
+                    /*
+                    * This event will display the new incoming message
+                    */
+
+
+                    this.socketOn('add-message-response', (response) => {
+                        console.log("RESPONSE => ", response);
+                        // $scope.$apply(() => {
+                        //     if (response && response.fromUserId == $scope.data.selectedFriendId) {
+                        //         $scope.data.messages.push(response);
+                        //         this.scrollToBottom();
+                        //     }
+                        // });
+                    });
+                })
+                .catch((error) => {
+                    console.log(error.message);
+                    $scope.$apply(() => {
+                        $location.path(`/`);
+                    });
+                });
+        }
+
+
+        httpCall(httpData) {
+
+            if (httpData.url === undefined || httpData.url === null || httpData.url === '') {
+                alert(`Invalid HTTP call`);
+            }
+            const HTTP = this.$http;
+            const params = httpData.params;
+            return new Promise((resolve, reject) => {
+                HTTP.post(httpData.url, params).then((response) => {
+                    resolve(response.data);
+                }).catch((response, status, header, config) => {
+                    reject(response.data);
+                });
+            });
+        }
+
+
+        socketEmit(eventName, params) {
+            this.socket.emit(eventName, params);
+        }
+
+        socketOn(eventName, callback) {
+            this.socket.on(eventName, (response) => {
+                if (callback) {
+                    callback(response);
+                }
+            });
+        }
+
+        getMessages(userId, friendId) {
+            return new Promise((resolve, reject) => {
+                this.httpCall({
+                    url: '/getMessages',
+                    params: {
+                        'userId': userId,
+                        'toUserId': friendId
+                    }
+                }).then((response) => {
+                    resolve(response);
+                }).catch((error) => {
+                    reject(error);
+                });
+            });
+        }
+
+        scrollToBottom() {
+            const messageThread = document.querySelector('.message-thread');
+            setTimeout(() => {
+                messageThread.scrollTop = messageThread.scrollHeight + 500;
+            }, 10);
+        }
+    } 
+</script>
